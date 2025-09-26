@@ -132,21 +132,23 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
     /**
      * Resort the list of rooms using a different algorithm.
      * @param algorithm The sorting algorithm to use.
-     * @param sections Which sections to group rooms into
+     * @param useSections Whether to group rooms into sections
+     * @param unreadFirst Whether to show unread rooms first
      */
-    public resort(algorithm: SortingAlgorithm, sections: (FilterKey | null)[]): void {
+    public resort(algorithm: SortingAlgorithm, useSections: boolean, unreadFirst: boolean): void {
         if (!this.roomSkipList) throw new Error("Cannot resort room list before skip list is created.");
         if (!this.matrixClient) throw new Error("Cannot resort room list without matrix client.");
         const sorter =
             algorithm === SortingAlgorithm.Alphabetic
                 ? new AlphabeticSorter()
                 : new RecencySorter(this.matrixClient.getSafeUserId());
-        const sectionSorter = new SectionSorter(sorter, sections);
+        const sectionSorter = new SectionSorter(sorter, useSections, unreadFirst);
         if (this.roomSkipList.activeSortAlgorithm === sectionSorter.type) return;
         this.roomSkipList.useNewSorter(sectionSorter, this.getRooms());
         this.emit(LISTS_UPDATE_EVENT);
         SettingsStore.setValue("RoomList.preferredSorting", null, SettingLevel.DEVICE, algorithm);
-        SettingsStore.setValue("RoomList.sections", null, SettingLevel.DEVICE, sections);
+        SettingsStore.setValue("RoomList.useSections", null, SettingLevel.DEVICE, useSections);
+        SettingsStore.setValue("RoomList.unreadFirst", null, SettingLevel.DEVICE, unreadFirst);
     }
 
     /**
@@ -325,12 +327,13 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
      */
     private getPreferredSorter(myUserId: string): Sorter {
         const preferred = SettingsStore.getValue("RoomList.preferredSorting");
-        const sections = SettingsStore.getValue("RoomList.sections");
+        const useSections = SettingsStore.getValue("RoomList.useSections");
+        const unreadFirst = SettingsStore.getValue("RoomList.unreadFirst");
         switch (preferred) {
             case SortingAlgorithm.Alphabetic:
-                return new SectionSorter(new AlphabeticSorter(), sections);
+                return new SectionSorter(new AlphabeticSorter(), useSections, unreadFirst);
             case SortingAlgorithm.Recency:
-                return new SectionSorter(new RecencySorter(myUserId), sections);
+                return new SectionSorter(new RecencySorter(myUserId), useSections, unreadFirst);
             default:
                 throw new Error(`Got unknown sort preference from RoomList.preferredSorting setting`);
         }
