@@ -24,7 +24,7 @@ export interface Sorter {
     /**
      * A string that uniquely identifies this given sorter.
      */
-    type: SortingAlgorithm;
+    type: string;
 }
 
 /**

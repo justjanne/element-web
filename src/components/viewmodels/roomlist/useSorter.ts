@@ -9,6 +9,8 @@ import { useState } from "react";
 import RoomListStoreV3 from "../../../stores/room-list-v3/RoomListStoreV3";
 import { SortingAlgorithm } from "../../../stores/room-list-v3/skip-list/sorters";
 import SettingsStore from "../../../settings/SettingsStore";
+import { FilterKey } from "../../../stores/room-list-v3/skip-list/filters";
+import { arrayHasDiff } from "../../../utils/arrays.ts";
 
 /**
  * Sorting options made available to the view.
@@ -35,9 +37,13 @@ const sortOptionToSortingAlgorithm = {
 };
 
 interface SortState {
-    sort: (option: SortOption) => void;
+    sort: (option: SortOption, grouped: boolean) => void;
     activeSortOption: SortOption;
+    grouped: boolean;
 }
+
+const defaultSections = [FilterKey.FavouriteFilter, FilterKey.PeopleFilter, null];
+const noSections = [null];
 
 /**
  * This hook does two things:
@@ -48,15 +54,19 @@ export function useSorter(): SortState {
     const [activeSortingAlgorithm, setActiveSortingAlgorithm] = useState(() =>
         SettingsStore.getValue("RoomList.preferredSorting"),
     );
+    const [activeSections, setActiveSections] = useState(() => SettingsStore.getValue("RoomList.sections"));
 
-    const sort = (option: SortOption): void => {
+    const sort = (option: SortOption, grouped: boolean): void => {
         const sortingAlgorithm = sortOptionToSortingAlgorithm[option];
-        RoomListStoreV3.instance.resort(sortingAlgorithm);
+        const sections = grouped ? defaultSections : noSections;
+        RoomListStoreV3.instance.resort(sortingAlgorithm, sections);
         setActiveSortingAlgorithm(sortingAlgorithm);
+        setActiveSections(sections);
     };
 
     return {
         sort,
         activeSortOption: sortingAlgorithmToSortingOption[activeSortingAlgorithm!],
+        grouped: arrayHasDiff(noSections, activeSections ?? noSections),
     };
 }
