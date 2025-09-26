@@ -64,6 +64,7 @@ describe("<RoomListOptionsMenu />", () => {
 
         const vm = {
             sort: jest.fn(),
+            grouped: false,
         } as unknown as RoomListHeaderViewState;
 
         render(<RoomListOptionsMenu vm={vm} />);
@@ -72,7 +73,7 @@ describe("<RoomListOptionsMenu />", () => {
 
         await user.click(screen.getByRole("menuitemradio", { name: "A-Z" }));
 
-        expect(vm.sort).toHaveBeenCalledWith("Alphabetic");
+        expect(vm.sort).toHaveBeenCalledWith("Alphabetic", false);
     });
 
     it("should sort by activity", async () => {
@@ -81,6 +82,7 @@ describe("<RoomListOptionsMenu />", () => {
         const vm = {
             sort: jest.fn(),
             activeSortOption: "Alphabetic",
+            grouped: false,
         } as unknown as RoomListHeaderViewState;
 
         render(<RoomListOptionsMenu vm={vm} />);
@@ -89,6 +91,6 @@ describe("<RoomListOptionsMenu />", () => {
 
         await user.click(screen.getByRole("menuitemradio", { name: "Activity" }));
 
-        expect(vm.sort).toHaveBeenCalledWith("Recency");
+        expect(vm.sort).toHaveBeenCalledWith("Recency", false);
     });
 });
