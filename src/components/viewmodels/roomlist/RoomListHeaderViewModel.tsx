@@ -121,11 +121,19 @@ export interface RoomListHeaderViewState {
     /**
      * Change the sort order of the room-list.
      */
-    sort: (option: SortOption) => void;
+    sort: (option: SortOption, useSections: boolean, unreadFirst: boolean) => void;
     /**
      * The currently active sort option.
      */
     activeSortOption: SortOption;
+    /**
+     * Whether to group rooms into sections
+     */
+    useSections: boolean;
+    /**
+     * Whether to show unread rooms first
+     */
+    unreadFirst: boolean;
 }
 
 /**
@@ -147,7 +155,7 @@ export function useRoomListHeaderViewModel(): RoomListHeaderViewState {
 
     /* Actions */
 
-    const { activeSortOption, sort } = useSorter();
+    const { activeSortOption, useSections, unreadFirst, sort } = useSorter();
 
     const createChatRoom = useCallback((e: Event) => {
         defaultDispatcher.fire(Action.CreateChat);
@@ -219,6 +227,8 @@ export function useRoomListHeaderViewModel(): RoomListHeaderViewState {
         openSpacePreferences,
         openSpaceSettings,
         activeSortOption,
+        useSections,
+        unreadFirst,
         sort,
     };
 }

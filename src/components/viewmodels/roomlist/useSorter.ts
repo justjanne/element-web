@@ -35,8 +35,10 @@ const sortOptionToSortingAlgorithm = {
 };
 
 interface SortState {
-    sort: (option: SortOption) => void;
+    sort: (option: SortOption, useSections: boolean, unreadFirst: boolean) => void;
     activeSortOption: SortOption;
+    useSections: boolean;
+    unreadFirst: boolean;
 }
 
 /**
@@ -48,15 +50,21 @@ export function useSorter(): SortState {
     const [activeSortingAlgorithm, setActiveSortingAlgorithm] = useState(() =>
         SettingsStore.getValue("RoomList.preferredSorting"),
     );
+    const [useSections, setUseSections] = useState(() => SettingsStore.getValue("RoomList.useSections"));
+    const [unreadFirst, setUnreadFirst] = useState(() => SettingsStore.getValue("RoomList.unreadFirst"));
 
-    const sort = (option: SortOption): void => {
+    const sort = (option: SortOption, useSections: boolean, unreadFirst: boolean): void => {
         const sortingAlgorithm = sortOptionToSortingAlgorithm[option];
-        RoomListStoreV3.instance.resort(sortingAlgorithm);
+        RoomListStoreV3.instance.resort(sortingAlgorithm, useSections, unreadFirst);
         setActiveSortingAlgorithm(sortingAlgorithm);
+        setUseSections(useSections);
+        setUnreadFirst(unreadFirst);
     };
 
     return {
         sort,
         activeSortOption: sortingAlgorithmToSortingOption[activeSortingAlgorithm!],
+        unreadFirst,
+        useSections,
     };
 }
