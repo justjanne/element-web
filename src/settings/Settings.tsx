@@ -50,6 +50,7 @@ import { SortingAlgorithm } from "../stores/room-list-v3/skip-list/sorters/index
 import MediaPreviewConfigController from "./controllers/MediaPreviewConfigController.ts";
 import InviteRulesConfigController from "./controllers/InviteRulesConfigController.ts";
 import { type ComputedInviteConfig } from "../@types/invite-rules.ts";
+import { FilterKey } from "../stores/room-list-v3/skip-list/filters";
 
 export const defaultWatchManager = new WatchManager();
 
@@ -324,6 +325,7 @@ export interface Settings {
     "lowBandwidth": IBaseSetting<boolean>;
     "fallbackICEServerAllowed": IBaseSetting<boolean | null>;
     "RoomList.preferredSorting": IBaseSetting<SortingAlgorithm>;
+    "RoomList.sections": IBaseSetting<(FilterKey | null)[]>;
     "RoomList.showMessagePreview": IBaseSetting<boolean>;
     "RightPanel.phasesGlobal": IBaseSetting<IRightPanelForRoomStored | null>;
     "RightPanel.phases": IBaseSetting<IRightPanelForRoomStored | null>;
@@ -1198,6 +1200,10 @@ export const SETTINGS: Settings = {
     "RoomList.preferredSorting": {
         supportedLevels: [SettingLevel.DEVICE],
         default: SortingAlgorithm.Recency,
+    },
+    "RoomList.sections": {
+        supportedLevels: [SettingLevel.DEVICE],
+        default: [FilterKey.FavouriteFilter, FilterKey.PeopleFilter, null],
     },
     "RoomList.showMessagePreview": {
         supportedLevels: [SettingLevel.DEVICE],
