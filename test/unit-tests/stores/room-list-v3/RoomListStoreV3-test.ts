@@ -78,24 +78,31 @@ describe("RoomListStoreV3", () => {
         const { store, rooms, client } = await getRoomListStore();
 
         // List is sorted by recency, sort by alphabetical now
-        store.resort(SortingAlgorithm.Alphabetic);
+        store.resort(SortingAlgorithm.Alphabetic, [null]);
         let sortedRooms = new AlphabeticSorter().sort(rooms);
         expect(store.getSortedRooms()).toEqual(sortedRooms);
-        expect(store.activeSortAlgorithm).toEqual(SortingAlgorithm.Alphabetic);
+        expect(store.activeSortAlgorithm).toEqual("grouping|Alphabetic|");
 
         // Go back to recency sorting
-        store.resort(SortingAlgorithm.Recency);
+        store.resort(SortingAlgorithm.Recency, [null]);
         sortedRooms = new RecencySorter(client.getSafeUserId()).sort(rooms);
         expect(store.getSortedRooms()).toEqual(sortedRooms);
-        expect(store.activeSortAlgorithm).toEqual(SortingAlgorithm.Recency);
+        expect(store.activeSortAlgorithm).toEqual("grouping|Recency|");
     });
 
     it("Uses preferred sorter on startup", async () => {
-        jest.spyOn(SettingsStore, "getValue").mockImplementation(() => {
-            return SortingAlgorithm.Alphabetic;
+        jest.spyOn(SettingsStore, "getValue").mockImplementation((key) => {
+            switch (key) {
+                case "RoomList.preferredSorting":
+                    return SortingAlgorithm.Alphabetic;
+                case "RoomList.sections":
+                    return [null];
+                default:
+                    return null;
+            }
         });
         const { store } = await getRoomListStore();
-        expect(store.activeSortAlgorithm).toEqual(SortingAlgorithm.Alphabetic);
+        expect(store.activeSortAlgorithm).toEqual("grouping|Alphabetic|");
     });
 
     describe("Updates", () => {
