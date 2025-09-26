@@ -2153,6 +2153,7 @@
             "rooms": "Rooms",
             "unread": "Unreads"
         },
+        "grouped": "Show favourites first",
         "home_menu_label": "Home options",
         "join_public_room_label": "Join public room",
         "joining_rooms_status": {
