@@ -7,30 +7,17 @@ Please see LICENSE files in the repository root for full details.
 
 import type { Room } from "matrix-js-sdk/src/matrix";
 import type { Sorter } from ".";
-import { type Filter, FilterKey } from "../filters";
-import { FavouriteFilter } from "../filters/FavouriteFilter.ts";
-import { PeopleFilter } from "../filters/PeopleFilter.ts";
-import { InvitesFilter } from "../filters/InvitesFilter.ts";
-import { UnreadFilter } from "../filters/UnreadFilter.ts";
-import { RoomsFilter } from "../filters/RoomsFilter.ts";
-import { MentionsFilter } from "../filters/MentionsFilter.ts";
-import { LowPriorityFilter } from "../filters/LowPriorityFilter.ts";
-
-const filters: { [T in FilterKey]?: Filter } = {
-    [FilterKey.FavouriteFilter]: new FavouriteFilter(),
-    [FilterKey.UnreadFilter]: new UnreadFilter(),
-    [FilterKey.PeopleFilter]: new PeopleFilter(),
-    [FilterKey.RoomsFilter]: new RoomsFilter(),
-    [FilterKey.InvitesFilter]: new InvitesFilter(),
-    [FilterKey.MentionsFilter]: new MentionsFilter(),
-    [FilterKey.LowPriorityFilter]: new LowPriorityFilter(),
-};
+import { buildSections, type Section, sectionMatches } from "../sections";
 
 export class SectionSorter implements Sorter {
+    public readonly sections: Section[];
     public constructor(
         public readonly wrapped: Sorter,
-        public readonly sections: (FilterKey | null)[],
-    ) {}
+        public readonly useSections: boolean,
+        public readonly unreadFirst: boolean,
+    ) {
+        this.sections = buildSections(useSections, unreadFirst);
+    }
 
     public sort(rooms: Room[]): Room[] {
         return [...rooms].sort((a, b) => {
@@ -40,8 +27,7 @@ export class SectionSorter implements Sorter {
 
     private getSectionIndex(room: Room): number {
         for (let index = 0; index < this.sections.length; index++) {
-            const key = this.sections[index];
-            if (key !== null && filters[key] && filters[key].matches(room)) {
+            if (sectionMatches(this.sections[index], room)) {
                 return index;
             }
         }
@@ -59,6 +45,8 @@ export class SectionSorter implements Sorter {
     }
 
     public get type(): string {
-        return ["grouping", this.wrapped.type, ...this.sections].join("|");
+        return [this.wrapped.type, this.useSections ? "useSections" : null, this.unreadFirst ? "unreadFirst" : null]
+            .filter((it) => it !== null)
+            .join("-");
     }
 }

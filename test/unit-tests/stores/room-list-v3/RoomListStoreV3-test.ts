@@ -29,6 +29,7 @@ import SettingsStore from "../../../../src/settings/SettingsStore";
 import * as utils from "../../../../src/utils/notifications";
 import * as roomMute from "../../../../src/stores/room-list/utils/roomMute";
 import { Action } from "../../../../src/dispatcher/actions";
+import { SettingLevel } from "../../../../src/settings/SettingLevel.ts";
 
 describe("RoomListStoreV3", () => {
     async function getRoomListStore() {
@@ -42,6 +43,10 @@ describe("RoomListStoreV3", () => {
     }
 
     beforeEach(() => {
+        SettingsStore.setValue("RoomList.preferredSorting", null, SettingLevel.DEVICE, SortingAlgorithm.Recency);
+        SettingsStore.setValue("RoomList.useSections", null, SettingLevel.DEVICE, false);
+        SettingsStore.setValue("RoomList.unreadFirst", null, SettingLevel.DEVICE, false);
+
         jest.spyOn(SpaceStore.instance, "isRoomInSpace").mockImplementation((space) => space === MetaSpace.Home);
         jest.spyOn(SpaceStore.instance, "activeSpace", "get").mockImplementation(() => MetaSpace.Home);
         jest.spyOn(SpaceStore.instance, "storeReadyPromise", "get").mockImplementation(() => Promise.resolve());
@@ -78,16 +83,16 @@ describe("RoomListStoreV3", () => {
         const { store, rooms, client } = await getRoomListStore();
 
         // List is sorted by recency, sort by alphabetical now
-        store.resort(SortingAlgorithm.Alphabetic, [null]);
+        store.resort(SortingAlgorithm.Alphabetic, true, false);
         let sortedRooms = new AlphabeticSorter().sort(rooms);
         expect(store.getSortedRooms()).toEqual(sortedRooms);
-        expect(store.activeSortAlgorithm).toEqual("grouping|Alphabetic|");
+        expect(store.activeSortAlgorithm).toEqual("Alphabetic-useSections");
 
         // Go back to recency sorting
-        store.resort(SortingAlgorithm.Recency, [null]);
+        store.resort(SortingAlgorithm.Recency, true, true);
         sortedRooms = new RecencySorter(client.getSafeUserId()).sort(rooms);
         expect(store.getSortedRooms()).toEqual(sortedRooms);
-        expect(store.activeSortAlgorithm).toEqual("grouping|Recency|");
+        expect(store.activeSortAlgorithm).toEqual("Recency-useSections-unreadFirst");
     });
 
     it("Uses preferred sorter on startup", async () => {
@@ -95,14 +100,12 @@ describe("RoomListStoreV3", () => {
             switch (key) {
                 case "RoomList.preferredSorting":
                     return SortingAlgorithm.Alphabetic;
-                case "RoomList.sections":
-                    return [null];
                 default:
                     return null;
             }
         });
         const { store } = await getRoomListStore();
-        expect(store.activeSortAlgorithm).toEqual("grouping|Alphabetic|");
+        expect(store.activeSortAlgorithm).toEqual("Alphabetic");
     });
 
     describe("Updates", () => {

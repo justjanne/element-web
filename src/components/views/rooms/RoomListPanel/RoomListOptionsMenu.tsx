@@ -36,15 +36,19 @@ export function RoomListOptionsMenu({ vm }: Props): JSX.Element {
     const [open, setOpen] = useState(false);
 
     const onActivitySelected = useCallback(() => {
-        vm.sort(SortOption.Activity, vm.grouped);
+        vm.sort(SortOption.Activity, vm.useSections, vm.unreadFirst);
     }, [vm]);
 
     const onAtoZSelected = useCallback(() => {
-        vm.sort(SortOption.AToZ, vm.grouped);
+        vm.sort(SortOption.AToZ, vm.useSections, vm.unreadFirst);
     }, [vm]);
 
-    const onGroupedSelected = useCallback(() => {
-        vm.sort(vm.activeSortOption, !vm.grouped);
+    const onUseSectionsSelected = useCallback(() => {
+        vm.sort(vm.activeSortOption, !vm.useSections, vm.unreadFirst);
+    }, [vm]);
+
+    const onUnreadFirstSelected = useCallback(() => {
+        vm.sort(vm.activeSortOption, vm.useSections, !vm.unreadFirst);
     }, [vm]);
 
     return (
@@ -67,7 +71,16 @@ export function RoomListOptionsMenu({ vm }: Props): JSX.Element {
                 checked={vm.activeSortOption === SortOption.AToZ}
                 onSelect={onAtoZSelected}
             />
-            <CheckboxMenuItem label={_t("room_list|grouped")} checked={vm.grouped} onSelect={onGroupedSelected} />
+            <CheckboxMenuItem
+                label={_t("room_list|sort_sections")}
+                checked={vm.useSections}
+                onSelect={onUseSectionsSelected}
+            />
+            <CheckboxMenuItem
+                label={_t("room_list|sort_unread_first")}
+                checked={vm.unreadFirst}
+                onSelect={onUnreadFirstSelected}
+            />
         </Menu>
     );
 }
