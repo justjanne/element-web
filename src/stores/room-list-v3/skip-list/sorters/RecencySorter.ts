@@ -10,6 +10,7 @@ import { type Sorter, SortingAlgorithm } from ".";
 import { getLastTs } from "../../../room-list/algorithms/tag-sorting/RecentAlgorithm";
 import { RoomNotificationStateStore } from "../../../notifications/RoomNotificationStateStore";
 import { DefaultTagID } from "../../../room-list/models";
+import { getMarkedUnreadState } from "../../../../utils/notifications.ts";
 
 export class RecencySorter implements Sorter {
     public constructor(private myUserId: string) {}
@@ -46,13 +47,17 @@ export class RecencySorter implements Sorter {
      * - If getScore(A) - getScore(B) = 0, no special ordering needed, just use recency
      */
     private getScore(room: Room): number {
+        const notificationState = RoomNotificationStateStore.instance.getRoomState(room);
+
+        const isUnread = notificationState.isUnread || getMarkedUnreadState(room);
         const isLowPriority = !!room.tags[DefaultTagID.LowPriority];
-        const isMuted = RoomNotificationStateStore.instance.getRoomState(room).muted;
+        const isMuted = notificationState.muted;
         // These constants are chosen so that the following order is maintained:
         // Low priority rooms -> Low priority and muted rooms -> Muted rooms
         if (isMuted && isLowPriority) return 5;
         else if (isMuted) return 10;
         else if (isLowPriority) return 2;
+        else if (!isUnread) return 1;
         else return 0;
     }
 
