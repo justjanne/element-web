@@ -169,7 +169,7 @@ export class RoomListHeaderViewModel
         showSpaceSettings(this.activeSpace);
     };
 
-    public sort = (option: SortOption): void => {
+    public sort = (option: SortOption, useSections: boolean): void => {
         const oldSortingAlgorithm = RoomListStoreV3.instance.activeSortAlgorithm;
         let newSortingAlgorithm: SortingAlgorithm;
         switch (option) {
@@ -183,8 +183,8 @@ export class RoomListHeaderViewModel
                 newSortingAlgorithm = SortingAlgorithm.Unread;
                 break;
         }
-        RoomListStoreV3.instance.resort(newSortingAlgorithm);
-        this.snapshot.merge({ activeSortOption: option });
+        RoomListStoreV3.instance.resort(newSortingAlgorithm, useSections);
+        this.snapshot.merge({ activeSortOption: option, isUseSectionsEnabled: useSections });
 
         // Record analytics for this action
         if (oldSortingAlgorithm) {
@@ -224,9 +224,11 @@ function getInitialSnapshot(spaceStore: SpaceStoreClass, matrixClient: MatrixCli
     }
 
     const isMessagePreviewEnabled = SettingsStore.getValue("RoomList.showMessagePreview");
+    const isUseSectionsEnabled = SettingsStore.getValue("RoomList.useSections");
 
     return {
         activeSortOption,
+        isUseSectionsEnabled,
         isMessagePreviewEnabled,
         ...computeHeaderSpaceState(spaceStore, matrixClient),
     };

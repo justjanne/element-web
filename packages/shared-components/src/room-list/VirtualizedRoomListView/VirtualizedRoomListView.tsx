@@ -14,6 +14,7 @@ import { useViewModel } from "../../viewmodel";
 import { _t } from "../../utils/i18n";
 import { VirtualizedList, type VirtualizedListContext } from "../../utils/VirtualizedList";
 import type { RoomListViewModel } from "../RoomListView";
+import { isRoomListSectionKey, RoomListSectionHeaderView } from "../RoomListSectionHeaderView";
 
 /**
  * Filter key type - opaque string type for filter identifiers
@@ -112,24 +113,33 @@ export function VirtualizedRoomListView({ vm, renderAvatar, onKeyDown }: Virtual
             onFocus: (item: string, e: React.FocusEvent) => void,
         ): JSX.Element => {
             const isSelected = activeRoomIndex === index;
-            const roomItemVM = vm.getRoomItemViewModel(roomId);
 
             // Item is focused when the list has focus AND this item's key matches tabIndexKey
             // This matches the old RoomList implementation's roving tabindex pattern
             const isFocused = context.focused && context.tabIndexKey === roomId;
 
-            return (
-                <RoomListItemView
-                    key={roomId}
-                    vm={roomItemVM}
-                    renderAvatar={renderAvatar}
-                    isSelected={isSelected}
-                    isFocused={isFocused}
-                    onFocus={onFocus}
-                    roomIndex={index}
-                    roomCount={roomCount}
-                />
-            );
+            if (isRoomListSectionKey(roomId)) {
+                return (
+                    <RoomListSectionHeaderView
+                        key={roomId}
+                        section={roomId}
+                    />
+                );
+            } else {
+                const roomItemVM = vm.getRoomItemViewModel(roomId);
+                return (
+                    <RoomListItemView
+                        key={roomId}
+                        vm={roomItemVM}
+                        renderAvatar={renderAvatar}
+                        isSelected={isSelected}
+                        isFocused={isFocused}
+                        onFocus={onFocus}
+                        roomIndex={index}
+                        roomCount={roomCount}
+                    />
+                );
+            }
         },
         [activeRoomIndex, roomCount, renderAvatar, vm],
     );

@@ -33,7 +33,7 @@ interface OptionMenuViewProps {
 export function OptionMenuView({ vm }: OptionMenuViewProps): JSX.Element {
     const { translate: _t } = useI18n();
     const [open, setOpen] = useState(false);
-    const { activeSortOption, isMessagePreviewEnabled } = useViewModel(vm);
+    const { activeSortOption, isMessagePreviewEnabled, isUseSectionsEnabled } = useViewModel(vm);
 
     return (
         <Menu
@@ -58,23 +58,28 @@ export function OptionMenuView({ vm }: OptionMenuViewProps): JSX.Element {
             <RadioMenuItem
                 label={_t("room_list|sort_type|activity")}
                 checked={activeSortOption === "recent"}
-                onSelect={() => vm.sort("recent")}
+                onSelect={() => vm.sort("recent", isUseSectionsEnabled)}
             />
             <RadioMenuItem
                 label={_t("room_list|sort_type|unread_first")}
                 checked={activeSortOption === "unread-first"}
-                onSelect={() => vm.sort("unread-first")}
+                onSelect={() => vm.sort("unread-first", isUseSectionsEnabled)}
             />
             <RadioMenuItem
                 label={_t("room_list|sort_type|atoz")}
                 checked={activeSortOption === "alphabetical"}
-                onSelect={() => vm.sort("alphabetical")}
+                onSelect={() => vm.sort("alphabetical", isUseSectionsEnabled)}
             />
             <MenuTitle title={_t("room_list|appearance")} />
             <CheckboxMenuItem
                 label={_t("room_list|show_message_previews")}
                 onSelect={vm.toggleMessagePreview}
                 checked={isMessagePreviewEnabled}
+            />
+            <CheckboxMenuItem
+                label={_t("room_list|sort_sections")}
+                onSelect={() => vm.sort(activeSortOption, !isUseSectionsEnabled)}
+                checked={isUseSectionsEnabled}
             />
         </Menu>
     );

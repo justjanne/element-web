@@ -19,7 +19,11 @@ import dispatcher from "../../dispatcher/dispatcher";
 import { type ViewRoomDeltaPayload } from "../../dispatcher/payloads/ViewRoomDeltaPayload";
 import { type ViewRoomPayload } from "../../dispatcher/payloads/ViewRoomPayload";
 import SpaceStore from "../../stores/spaces/SpaceStore";
-import RoomListStoreV3, { RoomListStoreV3Event, type RoomsResult } from "../../stores/room-list-v3/RoomListStoreV3";
+import RoomListStoreV3, {
+    isRoomListSectionHeader,
+    RoomListStoreV3Event,
+    type RoomsResult
+} from "../../stores/room-list-v3/RoomListStoreV3";
 import { FilterKey } from "../../stores/room-list-v3/skip-list/filters";
 import { RoomNotificationStateStore } from "../../stores/notifications/RoomNotificationStateStore";
 import { RoomListItemViewModel } from "./RoomListItemViewModel";
@@ -72,7 +76,7 @@ export class RoomListViewViewModel
                 spaceId: roomsResult.spaceId,
                 filterKeys: undefined,
             },
-            roomIds: roomsResult.rooms.map((room) => room.roomId),
+            roomIds: roomsResult.rooms.map((room) => isRoomListSectionHeader(room) ? room.key : room.roomId),
             canCreateRoom,
         });
 
@@ -146,7 +150,9 @@ export class RoomListViewViewModel
     private updateRoomsMap(roomsResult: RoomsResult): void {
         this.roomsMap.clear();
         for (const room of roomsResult.rooms) {
-            this.roomsMap.set(room.roomId, room);
+            if (!isRoomListSectionHeader(room)) {
+                this.roomsMap.set(room.roomId, room);
+            }
         }
     }
 
@@ -165,7 +171,7 @@ export class RoomListViewViewModel
      * Get the ordered list of room IDs.
      */
     public get roomIds(): string[] {
-        return this.roomsResult.rooms.map((room) => room.roomId);
+        return this.roomsResult.rooms.map((room) => isRoomListSectionHeader(room) ? room.key : room.roomId);
     }
 
     /**
