@@ -346,7 +346,7 @@ export class RoomListViewViewModel
     private applyStickyRoom(isRoomChange: boolean, roomId: string | null | undefined): Room[] {
         const rooms = this.roomsResult.rooms;
 
-        if (!roomId) {
+        if (!roomId || RoomListStoreV3.instance.hasSections) {
             return rooms;
         }
 
