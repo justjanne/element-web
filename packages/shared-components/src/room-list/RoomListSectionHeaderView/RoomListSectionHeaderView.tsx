@@ -13,6 +13,7 @@ import { useI18n } from "../../utils/i18nContext";
 
 export enum RoomListSectionKey {
     Favourite = "favourite",
+    People = "people",
     Unread = "unread",
     Chat = "chat",
     LowPriority = "lowpriority",
@@ -20,6 +21,7 @@ export enum RoomListSectionKey {
 
 export function isRoomListSectionKey(value: string): value is RoomListSectionKey {
     switch (value) {
+        case RoomListSectionKey.People:
         case RoomListSectionKey.Favourite:
         case RoomListSectionKey.Unread:
         case RoomListSectionKey.Chat:
@@ -41,6 +43,8 @@ export interface RoomListSectionHeaderViewProps extends React.HTMLAttributes<HTM
 function useSectionTitle(section: RoomListSectionKey): string {
     const { translate: _t } = useI18n();
     switch (section) {
+        case RoomListSectionKey.People:
+            return _t("room_list|sections|people");
         case RoomListSectionKey.Favourite:
             return _t("room_list|sections|favourite");
         case RoomListSectionKey.Unread:
@@ -57,7 +61,7 @@ function useSectionTitle(section: RoomListSectionKey): string {
  */
 export function RoomListSectionHeaderView({ section, ...props }: RoomListSectionHeaderViewProps): JSX.Element {
     const sectionTitle = useSectionTitle(section);
-    
+
     return (
         <div
             className={classNames(styles.roomListSectionHeader, "mx_RoomListSectionHeaderView")}
