@@ -15,6 +15,7 @@ import { _t } from "../../utils/i18n";
 import { VirtualizedList, type VirtualizedListContext } from "../../utils/VirtualizedList";
 import type { RoomListViewModel } from "../RoomListView";
 import { isRoomListSectionKey, RoomListSectionHeaderView } from "../RoomListSectionHeaderView";
+import { useMemorizedList } from "../../utils/useMemorizedList.ts";
 
 /**
  * Filter key type - opaque string type for filter identifiers
@@ -84,7 +85,8 @@ const EXTENDED_VIEWPORT_HEIGHT = 25 * ROOM_LIST_ITEM_HEIGHT;
  */
 export function VirtualizedRoomListView({ vm, renderAvatar, onKeyDown }: VirtualizedRoomListViewProps): JSX.Element {
     const snapshot = useViewModel(vm);
-    const { roomListState, roomIds } = snapshot;
+    const {roomListState} = snapshot;
+    const roomIds = useMemorizedList(snapshot.roomIds);
     const activeRoomIndex = roomListState.activeRoomIndex;
     const lastSpaceId = useRef<string | undefined>(undefined);
     const lastFilterKeys = useRef<FilterKey[] | undefined>(undefined);
