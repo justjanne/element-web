@@ -172,6 +172,13 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
         return this.roomSkipList?.activeSortAlgorithm;
     }
 
+    /**
+     * Currently active sorting algorithm if the store is ready or undefined otherwise.
+     */
+    public get hasSections(): boolean {
+        return this.useSections;
+    }
+
     protected async onReady(): Promise<any> {
         if (this.roomSkipList?.initialized || !this.matrixClient) return;
         const sorter = this.getPreferredSorter(this.matrixClient.getSafeUserId());
