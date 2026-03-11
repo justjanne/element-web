@@ -307,6 +307,11 @@ export function VirtualizedList<Item, Context>(props: IVirtualizedListProps<Item
         [getItemComponent, onFocusForGetItemComponent],
     );
 
+    const getItemKeyInternal = useCallback(
+        (index: number, item: Item, context: VirtualizedListContext<Context>) => getItemKey(item),
+        [getItemKey],
+    );
+
     /**
      * Handles focus events on the list.
      * Sets the focused state and scrolls to the focused item if it is not currently visible.
@@ -367,6 +372,7 @@ export function VirtualizedList<Item, Context>(props: IVirtualizedListProps<Item
             ref={virtuosoHandleRef}
             scrollerRef={scrollerRef}
             onKeyDown={keyDownCallback}
+            computeItemKey={getItemKeyInternal}
             context={listContext}
             rangeChanged={handleRangeChanged}
             // virtuoso errors internally if you pass undefined.
