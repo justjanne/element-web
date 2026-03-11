@@ -333,6 +333,7 @@ export interface Settings {
     "lowBandwidth": IBaseSetting<boolean>;
     "fallbackICEServerAllowed": IBaseSetting<boolean | null>;
     "RoomList.preferredSorting": IBaseSetting<SortingAlgorithm>;
+    "RoomList.useSections": IBaseSetting<boolean>;
     "RoomList.showMessagePreview": IBaseSetting<boolean>;
     "RightPanel.phasesGlobal": IBaseSetting<IRightPanelForRoomStored | null>;
     "RightPanel.phases": IBaseSetting<IRightPanelForRoomStored | null>;
@@ -1222,6 +1223,10 @@ export const SETTINGS: Settings = {
     "RoomList.preferredSorting": {
         supportedLevels: [SettingLevel.DEVICE],
         default: SortingAlgorithm.Recency,
+    },
+    "RoomList.useSections": {
+        supportedLevels: [SettingLevel.DEVICE],
+        default: false,
     },
     "RoomList.showMessagePreview": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,

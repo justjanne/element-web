@@ -59,6 +59,7 @@ export interface RoomListHeaderViewSnapshot {
      * Whether message previews are enabled in the room list.
      */
     isMessagePreviewEnabled: boolean;
+    isUseSectionsEnabled: boolean;
 }
 
 export interface RoomListHeaderViewActions {
@@ -93,7 +94,7 @@ export interface RoomListHeaderViewActions {
     /**
      * Change the sort order of the room-list.
      */
-    sort: (option: SortOption) => void;
+    sort: (option: SortOption, useSections: boolean) => void;
     /**
      * Toggle message preview display in the room list.
      */

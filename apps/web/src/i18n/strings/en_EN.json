@@ -2166,6 +2166,7 @@
         "sort_by": "Sort by",
         "sort_by_activity": "Activity",
         "sort_by_alphabet": "A-Z",
+        "sort_sections": "Group rooms by type",
         "sort_unread_first": "Show rooms with unread messages first",
         "space_menu_label": "%(spaceName)s menu",
         "sublist_options": "List options",

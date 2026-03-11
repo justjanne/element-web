@@ -121,6 +121,12 @@
             "more_options": "More Options"
         },
         "room_options": "Room Options",
+        "sections": {
+            "chat": "Chats",
+            "favourite": "Favourites",
+            "low_priority": "Low priority",
+            "unread": "Unreads"
+        },
         "show_message_previews": "Show message previews",
         "sort": "Sort",
         "sort_type": {
