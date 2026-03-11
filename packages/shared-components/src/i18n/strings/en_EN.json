@@ -125,6 +125,7 @@
             "chat": "Chats",
             "favourite": "Favourites",
             "low_priority": "Low priority",
+            "people": "People",
             "unread": "Unreads"
         },
         "show_message_previews": "Show message previews",
