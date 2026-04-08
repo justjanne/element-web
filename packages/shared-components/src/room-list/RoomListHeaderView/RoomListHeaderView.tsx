@@ -59,6 +59,7 @@ export interface RoomListHeaderViewSnapshot {
      * Whether message previews are enabled in the room list.
      */
     isMessagePreviewEnabled: boolean;
+    sectionsEnabled: boolean;
 }
 
 export interface RoomListHeaderViewActions {
@@ -98,6 +99,7 @@ export interface RoomListHeaderViewActions {
      * Toggle message preview display in the room list.
      */
     toggleMessagePreview: () => void;
+    toggleSections: () => void;
 }
 
 /**

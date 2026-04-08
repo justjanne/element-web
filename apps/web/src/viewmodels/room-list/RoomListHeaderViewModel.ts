@@ -199,6 +199,12 @@ export class RoomListHeaderViewModel
         SettingsStore.setValue("RoomList.showMessagePreview", null, SettingLevel.DEVICE, isMessagePreviewEnabled);
         this.snapshot.merge({ isMessagePreviewEnabled });
     };
+
+    public toggleSections = (): void => {
+        const sectionsEnabled = !SettingsStore.getValue("feature_room_list_sections");
+        SettingsStore.setValue("feature_room_list_sections", null, SettingLevel.DEVICE, sectionsEnabled);
+        this.snapshot.merge({ sectionsEnabled });
+    };
 }
 
 /**
@@ -224,10 +230,12 @@ function getInitialSnapshot(spaceStore: SpaceStoreClass, matrixClient: MatrixCli
     }
 
     const isMessagePreviewEnabled = SettingsStore.getValue("RoomList.showMessagePreview");
+    const sectionsEnabled = SettingsStore.getValue("feature_room_list_sections");
 
     return {
         activeSortOption,
         isMessagePreviewEnabled,
+        sectionsEnabled,
         ...computeHeaderSpaceState(spaceStore, matrixClient),
     };
 }
@@ -259,7 +267,7 @@ function getCanCreateVideoRoom(canCreateRoom: boolean): boolean {
 function computeHeaderSpaceState(
     spaceStore: SpaceStoreClass,
     matrixClient: MatrixClient,
-): Omit<RoomListHeaderViewSnapshot, "activeSortOption" | "isMessagePreviewEnabled"> {
+): Omit<RoomListHeaderViewSnapshot, "activeSortOption" | "isMessagePreviewEnabled" | "sectionsEnabled"> {
     const activeSpace = spaceStore.activeSpaceRoom;
     const title = getHeaderTitle(spaceStore);
 
