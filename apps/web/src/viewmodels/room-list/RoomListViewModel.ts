@@ -27,15 +27,16 @@ import RoomListStoreV3, {
     type RoomsResult,
     type Section,
 } from "../../stores/room-list-v3/RoomListStoreV3";
-import { FilterEnum } from "../../stores/room-list-v3/skip-list/filters";
+import { FilterEnum, FilterKey } from "../../stores/room-list-v3/skip-list/filters";
 import { RoomNotificationStateStore } from "../../stores/notifications/RoomNotificationStateStore";
 import { RoomListItemViewModel } from "./RoomListItemViewModel";
 import { SdkContextClass } from "../../contexts/SDKContext";
 import { hasCreateRoomRights } from "./utils";
 import { keepIfSame } from "../../utils/keepIfSame";
-import { DefaultTagID } from "../../stores/room-list-v3/skip-list/tag";
 import { RoomListSectionHeaderViewModel } from "./RoomListSectionHeaderViewModel";
 import SettingsStore from "../../settings/SettingsStore";
+import { UnreadSectionFilter } from "../../stores/room-list-v3/skip-list/filters/UnreadSectionFilter.ts";
+import { ChatSectionFilter } from "../../stores/room-list-v3/skip-list/filters/ChatSectionFilter.ts";
 
 /**
  * Tracks the position of the active room within a specific section.
@@ -63,10 +64,11 @@ const filterKeyToIdMap: Map<FilterEnum, FilterId> = new Map([
     [FilterEnum.LowPriorityFilter, "low_priority"],
 ]);
 
-const TAG_TO_TITLE_MAP: Record<string, string> = {
-    [DefaultTagID.Favourite]: _t("room_list|section|favourites"),
-    [CHATS_TAG]: _t("room_list|section|chats"),
-    [DefaultTagID.LowPriority]: _t("room_list|section|low_priority"),
+const TAG_TO_TITLE_MAP: Record<FilterKey, string> = {
+    [FilterEnum.FavouriteFilter]: _t("room_list|section|favourites"),
+    [UnreadSectionFilter.KEY]: _t("room_list|section|unread"),
+    [ChatSectionFilter.KEY]: _t("room_list|section|chats"),
+    [FilterEnum.LowPriorityFilter]: _t("room_list|section|low_priority"),
 };
 
 export class RoomListViewModel

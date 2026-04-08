@@ -380,9 +380,15 @@ export function useVirtualizedList<Item, Context>(
         [rangeChanged, mapRangeIndex],
     );
 
+    const computeItemKey = useCallback(
+        (index: number, item: Item, context: VirtualizedListContext<Context>) => getItemKey(item),
+        [getItemKey],
+    );
+
     return {
         ...virtuosoProps,
         ref: virtuosoHandleRef,
+        computeItemKey,
         scrollerRef,
         onKeyDown: keyDownCallback,
         onFocus,

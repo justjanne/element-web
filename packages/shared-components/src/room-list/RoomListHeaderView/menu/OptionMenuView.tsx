@@ -33,7 +33,7 @@ interface OptionMenuViewProps {
 export function OptionMenuView({ vm }: OptionMenuViewProps): JSX.Element {
     const { translate: _t } = useI18n();
     const [open, setOpen] = useState(false);
-    const { activeSortOption, isMessagePreviewEnabled } = useViewModel(vm);
+    const { activeSortOption, isMessagePreviewEnabled, sectionsEnabled } = useViewModel(vm);
 
     return (
         <Menu
@@ -75,6 +75,11 @@ export function OptionMenuView({ vm }: OptionMenuViewProps): JSX.Element {
                 label={_t("room_list|show_message_previews")}
                 onSelect={vm.toggleMessagePreview}
                 checked={isMessagePreviewEnabled}
+            />
+            <CheckboxMenuItem
+                label={_t("labs|room_list_sections")}
+                onSelect={vm.toggleSections}
+                checked={sectionsEnabled}
             />
         </Menu>
     );

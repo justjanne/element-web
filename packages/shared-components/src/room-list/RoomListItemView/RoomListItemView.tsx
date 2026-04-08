@@ -7,9 +7,7 @@
 
 import React, { type JSX, memo, useEffect, useRef, type ReactNode } from "react";
 import classNames from "classnames";
-import { Text } from "@vector-im/compound-web";
 
-import { Flex } from "../../core/utils/Flex";
 import { NotificationDecoration, type NotificationDecorationData } from "./NotificationDecoration";
 import { RoomListItemHoverMenu } from "./RoomListItemHoverMenu";
 import { RoomListItemContextMenu } from "./RoomListItemContextMenu";
@@ -17,6 +15,10 @@ import { type RoomNotifState } from "./RoomNotifs";
 import styles from "./RoomListItemView.module.css";
 import { useViewModel, type ViewModel } from "../../core/viewmodel";
 import { _t } from "../../core/i18n/i18n";
+import { RoomListItem } from "./RoomListItem.tsx";
+import { Container } from "./Container.tsx";
+import { Content } from "./Content.tsx";
+import { MessagePreview } from "./MessagePreview.tsx";
 
 /**
  * Opaque type representing a Room object from the parent application
@@ -159,18 +161,15 @@ export const RoomListItemView = memo(function RoomListItemView({
 
     return (
         <RoomListItemContextMenu vm={vm}>
-            <Flex
-                as="button"
+            <RoomListItem
                 ref={ref}
-                className={classNames(styles.roomListItem, "mx_RoomListItemView", {
+                className={classNames({
                     [styles.selected]: isSelected,
                     [styles.bold]: item.isBold,
                     [styles.firstItem]: isFirstItem,
                     [styles.lastItem]: isLastItem,
                     mx_RoomListItemView_selected: isSelected,
                 })}
-                gap="var(--cpd-space-3x)"
-                align="stretch"
                 type="button"
                 aria-selected={isSelected}
                 aria-label={a11yLabel}
@@ -179,18 +178,16 @@ export const RoomListItemView = memo(function RoomListItemView({
                 tabIndex={isFocused ? 0 : -1}
                 {...props}
             >
-                <Flex className={styles.container} gap="var(--cpd-space-3x)" align="center">
+                <Container>
                     {renderAvatar(item.room)}
-                    <Flex className={styles.content} gap="var(--cpd-space-2x)" align="center" justify="space-between">
+                    <Content>
                         {/* We truncate the room name when too long. Title here is to show the full name on hover */}
                         <div className={styles.ellipsis}>
                             <div className={styles.roomName} title={item.name} data-testid="room-name">
                                 {item.name}
                             </div>
                             {item.messagePreview && (
-                                <Text as="div" size="sm" className={styles.ellipsis} title={item.messagePreview}>
-                                    {item.messagePreview}
-                                </Text>
+                                <MessagePreview content={item.messagePreview} />
                             )}
                         </div>
                         {(item.showMoreOptionsMenu || item.showNotificationMenu) && (
@@ -205,9 +202,9 @@ export const RoomListItemView = memo(function RoomListItemView({
                         <div className={styles.notificationDecoration} aria-hidden={true}>
                             <NotificationDecoration {...item.notification} />
                         </div>
-                    </Flex>
-                </Flex>
-            </Flex>
+                    </Content>
+                </Container>
+            </RoomListItem>
         </RoomListItemContextMenu>
     );
 });

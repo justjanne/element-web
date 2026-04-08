@@ -81,6 +81,7 @@ export interface GroupedVirtualizedListProps<Header, Item, Context> extends Omit
         header: Header,
         context: VirtualizedListContext<Context>,
         onFocus: (header: Header, e: React.FocusEvent) => void,
+        flatIndex: number,
     ) => JSX.Element;
 
     /**
@@ -201,7 +202,7 @@ export function GroupedVirtualizedList<Header, Item, Context>(
             const groupIndex = flatIndexToGroupIndex[flatIndex];
 
             if ("header" in entry) {
-                return getGroupHeaderComponent(groupIndex, entry.header, context, onFocusForHeader);
+                return getGroupHeaderComponent(groupIndex, entry.header, context, onFocusForHeader, flatIndex);
             }
 
             // Item index in the flattened (non-header) items array:

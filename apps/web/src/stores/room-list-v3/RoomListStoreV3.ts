@@ -36,10 +36,8 @@ import { UnreadSorter } from "./skip-list/sorters/UnreadSorter";
 import { getChangedOverrideRoomMutePushRules } from "./utils";
 import { isRoomVisible } from "./isRoomVisible";
 import { RoomSkipList } from "./skip-list/RoomSkipList";
-import { DefaultTagID } from "./skip-list/tag";
-import { ExcludeTagsFilter } from "./skip-list/filters/ExcludeTagsFilter";
-import { TagFilter } from "./skip-list/filters/TagFilter";
-import { filterBoolean } from "../../utils/arrays";
+import { SECTION_FILTERS, SECTIONS } from "./skip-list/SectionProcessor.ts";
+import { ChatSectionFilter } from "./skip-list/filters/ChatSectionFilter.ts";
 
 /**
  * These are the filters passed to the room skip list.
@@ -85,7 +83,7 @@ export interface Section {
  * A synthetic tag used to represent the "Chats" section, which contains
  * every room that does not belong to any other explicit tag section.
  */
-export const CHATS_TAG = "chats";
+export const CHATS_TAG = ChatSectionFilter.KEY;
 
 export const LISTS_UPDATE_EVENT = RoomListStoreV3Event.ListsUpdate;
 export const LISTS_LOADED_EVENT = RoomListStoreV3Event.ListsLoaded;
@@ -99,16 +97,6 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
      * Contains all the rooms in the active space
      */
     private roomSkipList?: RoomSkipList;
-
-    /**
-     * Maps section tags to their corresponding tag filters, used to determine which rooms belong in which sections.
-     */
-    private readonly filterByTag: Map<string, Filter> = new Map();
-
-    /**
-     * Defines the display order of sections.
-     */
-    private readonly sortedTags: string[] = [DefaultTagID.Favourite, CHATS_TAG, DefaultTagID.LowPriority];
 
     private readonly msc3946ProcessDynamicPredecessor: boolean;
 
@@ -439,12 +427,7 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
      * Get the list of filters to be used in the skip list, including the tag filters for sectioning.
      */
     private getSkipListFilters(): Filter[] {
-        const tagsToExclude = this.sortedTags.filter((tag) => tag !== CHATS_TAG);
-        const tagFilters = this.sortedTags.map((tag) =>
-            tag === CHATS_TAG ? new ExcludeTagsFilter(tagsToExclude) : new TagFilter(tag),
-        );
-        this.sortedTags.forEach((tag, index) => this.filterByTag.set(tag, tagFilters[index]));
-
+        const tagFilters = SECTIONS.map((tag) => SECTION_FILTERS[tag]);
         return [...FILTERS, ...tagFilters];
     }
 
@@ -454,12 +437,10 @@ export class RoomListStoreV3Class extends AsyncStoreWithClient<EmptyObject> {
      * @returns An array of sections
      */
     private getSections(filterKeys?: FilterKey[]): Section[] {
-        return this.sortedTags.map((tag) => {
-            const filters = filterBoolean([this.filterByTag.get(tag)?.key, ...(filterKeys || [])]);
-
+        return SECTIONS.map((tag) => {
             return {
                 tag,
-                rooms: Array.from(this.roomSkipList?.getRoomsInActiveSpace(filters) || []),
+                rooms: Array.from(this.roomSkipList?.getRoomsInActiveSpace([tag, ...(filterKeys ?? [])]) ?? []),
             };
         });
     }
