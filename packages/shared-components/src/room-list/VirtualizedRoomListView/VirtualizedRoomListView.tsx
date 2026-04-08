@@ -238,13 +238,10 @@ export function VirtualizedRoomListView({ vm, renderAvatar, onKeyDown }: Virtual
             headerId: string,
             context: VirtualizedListContext<Context>,
             onFocus: (header: string, e: React.FocusEvent) => void,
+            flatIndex: number,
         ): JSX.Element => {
             const { vm, sectionCount, sections } = context.context;
             const sectionHeaderVM = vm.getSectionHeaderViewModel(headerId);
-            const indexInList = sections
-                .slice(0, groupIndex)
-                // +1 for each section header
-                .reduce((acc, section) => acc + section.roomIds.length + 1, 0);
             const roomCountInSection = sections[groupIndex].roomIds.length;
 
             // Item is focused when the list has focus AND this item's key matches tabIndexKey
@@ -256,7 +253,7 @@ export function VirtualizedRoomListView({ vm, renderAvatar, onKeyDown }: Virtual
                     vm={sectionHeaderVM}
                     isFocused={isFocused}
                     onFocus={onFocus}
-                    indexInList={indexInList}
+                    indexInList={flatIndex}
                     sectionIndex={groupIndex}
                     sectionCount={sectionCount}
                     roomCountInSection={roomCountInSection}
