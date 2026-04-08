@@ -2162,6 +2162,7 @@
         },
         "section": {
             "chats": "Chats",
+            "unread": "Unread",
             "favourites": "Favourites",
             "low_priority": "Low Priority"
         },
