@@ -58,6 +58,8 @@ const QuickSettingsButton: React.FC<{
                 onFinished={closeMenu}
                 managed={false}
                 focusLock={true}
+                role="region"
+                aria-label={_t("quick_settings|title")}
             >
                 <h2>{_t("quick_settings|title")}</h2>
 
@@ -89,49 +91,39 @@ const QuickSettingsButton: React.FC<{
                     </AccessibleButton>
                 )}
 
-                {!newRoomListEnabled && (
-                    <>
-                        <h4>
-                            <PinSolidIcon className="mx_QuickSettingsButton_icon" />
-                            {_t("quick_settings|metaspace_section")}
-                        </h4>
-                        <StyledCheckbox
-                            className="mx_QuickSettingsButton_option"
-                            checked={!!favouritesEnabled}
-                            onChange={onMetaSpaceChangeFactory(
-                                MetaSpace.Favourites,
-                                "WebQuickSettingsPinToSidebarCheckbox",
-                            )}
-                        >
-                            <FavouriteSolidIcon className="mx_QuickSettingsButton_icon" />
-                            {_t("common|favourites")}
-                        </StyledCheckbox>
-                        <StyledCheckbox
-                            className="mx_QuickSettingsButton_option"
-                            checked={!!peopleEnabled}
-                            onChange={onMetaSpaceChangeFactory(
-                                MetaSpace.People,
-                                "WebQuickSettingsPinToSidebarCheckbox",
-                            )}
-                        >
-                            <UserProfileSolidIcon className="mx_QuickSettingsButton_icon" />
-                            {_t("common|people")}
-                        </StyledCheckbox>
-                        <AccessibleButton
-                            className="mx_QuickSettingsButton_moreOptionsButton mx_QuickSettingsButton_option"
-                            onClick={() => {
-                                closeMenu();
-                                defaultDispatcher.dispatch({
-                                    action: Action.ViewUserSettings,
-                                    initialTabId: UserTab.Sidebar,
-                                });
-                            }}
-                        >
-                            <OverflowHorizontalIcon className="mx_QuickSettingsButton_icon" />
-                            {_t("quick_settings|sidebar_settings")}
-                        </AccessibleButton>
-                    </>
-                )}
+                <h4>
+                    <PinSolidIcon className="mx_QuickSettingsButton_icon" />
+                    {_t("quick_settings|metaspace_section")}
+                </h4>
+                <StyledCheckbox
+                    className="mx_QuickSettingsButton_option"
+                    checked={!!favouritesEnabled}
+                    onChange={onMetaSpaceChangeFactory(MetaSpace.Favourites, "WebQuickSettingsPinToSidebarCheckbox")}
+                >
+                    <FavouriteSolidIcon className="mx_QuickSettingsButton_icon" />
+                    {_t("common|favourites")}
+                </StyledCheckbox>
+                <StyledCheckbox
+                    className="mx_QuickSettingsButton_option"
+                    checked={!!peopleEnabled}
+                    onChange={onMetaSpaceChangeFactory(MetaSpace.People, "WebQuickSettingsPinToSidebarCheckbox")}
+                >
+                    <UserProfileSolidIcon className="mx_QuickSettingsButton_icon" />
+                    {_t("common|people")}
+                </StyledCheckbox>
+                <AccessibleButton
+                    className="mx_QuickSettingsButton_moreOptionsButton mx_QuickSettingsButton_option"
+                    onClick={() => {
+                        closeMenu();
+                        defaultDispatcher.dispatch({
+                            action: Action.ViewUserSettings,
+                            initialTabId: UserTab.Sidebar,
+                        });
+                    }}
+                >
+                    <OverflowHorizontalIcon className="mx_QuickSettingsButton_icon" />
+                    {_t("quick_settings|sidebar_settings")}
+                </AccessibleButton>
                 <QuickThemeSwitcher requestClose={closeMenu} />
             </ContextMenu>
         );
