@@ -8,10 +8,11 @@ import type { Room } from "matrix-js-sdk/src/matrix";
 import { type Filter, FilterKey } from ".";
 
 export class UnreadSectionFilter implements Filter {
-    public constructor(private readonly filters: Filter[]) {}
+    public constructor(private readonly filters: Filter[], private readonly tags: FilterKey[]) {}
 
     public matches(room: Room): boolean {
-        return this.filters.some(filter => filter?.matches(room));
+        return !this.tags.some((tag) => room.tags[tag])
+            && this.filters.some(filter => filter?.matches(room));
     }
 
     public get key(): FilterKey {

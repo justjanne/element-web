@@ -13,6 +13,7 @@ import { MentionsFilter } from "./filters/MentionsFilter.ts";
 import { InvitesFilter } from "./filters/InvitesFilter.ts";
 import { UnreadSectionFilter } from "./filters/UnreadSectionFilter.ts";
 import { ChatSectionFilter } from "./filters/ChatSectionFilter.ts";
+import { DefaultTagID } from "./tag.ts";
 
 export const SECTIONS = [
     FilterEnum.FavouriteFilter,
@@ -23,9 +24,10 @@ export const SECTIONS = [
 
 export const SECTION_FILTERS: { [key: FilterKey]: Filter } = {
     [FilterEnum.FavouriteFilter]: new FavouriteFilter(),
-    [UnreadSectionFilter.KEY]: new UnreadSectionFilter([
-        new InvitesFilter(), new MentionsFilter(), new UnreadFilter(),
-    ]),
+    [UnreadSectionFilter.KEY]: new UnreadSectionFilter(
+        [new InvitesFilter(), new MentionsFilter(), new UnreadFilter()],
+        [DefaultTagID.Favourite, DefaultTagID.LowPriority],
+    ),
     [FilterEnum.LowPriorityFilter]: new LowPriorityFilter(),
 }
 
