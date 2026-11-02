@@ -10,6 +10,7 @@
  */
 export enum DefaultTagID {
     Invite = "im.vector.fake.invite",
+    Unread = "im.vector.fake.unread",
     Untagged = "im.vector.fake.recent", // legacy: used to just be 'recent rooms' but now it's all untagged rooms
     Archived = "im.vector.fake.archived",
     LowPriority = "m.lowpriority",

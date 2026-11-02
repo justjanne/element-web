@@ -29,7 +29,7 @@ export function tagRoom(room: Room, tagId: TagID, showToast = false): void {
 
     // The invite tag is a section tag, but it comes from the membership rather than from account
     // data, so it can never be written to or removed from a room.
-    if (!isSectionTag(tagId) || tagId === DefaultTagID.Invite) {
+    if (!isSectionTag(tagId) || tagId === DefaultTagID.Invite || tagId === DefaultTagID.Unread) {
         logger.warn(`Unexpected tag ${tag} applied to ${room.roomId}`);
         return;
     }

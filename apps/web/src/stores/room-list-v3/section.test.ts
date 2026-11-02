@@ -501,6 +501,7 @@ describe("section", () => {
                 if (setting === "RoomList.OrderedCustomSections") return orderedTags;
                 if (setting === "RoomList.CustomSectionData") return { [customTag]: { tag: customTag, name: "A" } };
                 if (setting === "RoomList.showPeopleSection") return showPeopleSection;
+                if (setting === "RoomList.showUnreadSection") return false;
                 return null;
             });
         }

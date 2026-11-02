@@ -235,6 +235,7 @@ describe("RoomListSectionHeaderViewModel", () => {
         function makeViewModel(tag: string, showPeopleSection = true): RoomListSectionHeaderViewModel {
             vi.spyOn(SettingsStore, "getValue").mockImplementation((setting) => {
                 if (setting === "RoomList.showPeopleSection") return showPeopleSection;
+                if (setting === "RoomList.showUnreadSection") return false;
                 if (setting === "RoomList.SectionExpansionState") return sectionExpansionState;
                 return null;
             });
