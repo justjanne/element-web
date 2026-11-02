@@ -11,6 +11,8 @@ import { type FilterKey, type MultiKeyFilter } from ".";
 import DMRoomMap from "../../../../utils/DMRoomMap";
 import { CHATS_TAG } from "../../section";
 import { DefaultTagID } from "../tag";
+import { RoomNotificationStateStore } from "../../../notifications/RoomNotificationStateStore.ts";
+import { getMarkedUnreadState } from "../../../../utils/notifications.ts";
 
 /**
  * Works out which section a room belongs to. A room belongs to exactly one section: the Invites
@@ -27,12 +29,14 @@ export class SectionFilter implements MultiKeyFilter {
      * Computed once because {@link keyFor} runs for every room.
      */
     private readonly hasPeopleSection: boolean;
+    private readonly hasUnreadSection: boolean;
 
     /**
      * @param sectionTags All the section tags, in display order.
      */
     public constructor(private readonly sectionTags: string[]) {
         this.hasPeopleSection = sectionTags.includes(DefaultTagID.DM);
+        this.hasUnreadSection = sectionTags.includes(DefaultTagID.Unread);
     }
 
     public keyFor(room: Room): FilterKey | undefined {
@@ -40,12 +44,22 @@ export class SectionFilter implements MultiKeyFilter {
         // room.tags. A pending invitation wins over every tag the user applied.
         if (room.getMyMembership() === KnownMembership.Invite) return DefaultTagID.Invite;
 
+        const isDm = !!DMRoomMap.shared().getUserIdForRoomId(room.roomId);
+
+        const roomNotificationState = RoomNotificationStateStore.instance.getRoomState(room);
+        const isUnread =
+            roomNotificationState.isMention || roomNotificationState.hasUnreadCount || !!getMarkedUnreadState(room);
+
         // A tag the user applied wins over being a direct message. A room carrying the invite tag
         // without a pending invitation belongs to no section.
         const tag = this.sectionTags.find((sectionTag) => room.tags[sectionTag]);
-        if (tag) return tag === DefaultTagID.Invite ? undefined : tag;
 
-        const isDm = this.hasPeopleSection && !!DMRoomMap.shared().getUserIdForRoomId(room.roomId);
-        return isDm ? DefaultTagID.DM : CHATS_TAG;
+        if (tag === DefaultTagID.Invite) return undefined;
+        if (tag === DefaultTagID.Favourite) return tag;
+        if (this.hasUnreadSection && isUnread) return DefaultTagID.Unread;
+        if (tag) return tag;
+        if (this.hasPeopleSection && isDm) return DefaultTagID.DM;
+
+        return CHATS_TAG;
     }
 }

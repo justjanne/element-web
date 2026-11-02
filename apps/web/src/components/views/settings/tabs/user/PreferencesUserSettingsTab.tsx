@@ -283,6 +283,11 @@ export default class PreferencesUserSettingsTab extends React.Component<EmptyObj
                             level={SettingLevel.ACCOUNT}
                             requires={["RoomList.showSections"]}
                         />
+                        <SettingsFlag
+                            name="RoomList.showUnreadSection"
+                            level={SettingLevel.ACCOUNT}
+                            requires={["RoomList.showSections"]}
+                        />
                     </SettingsSubsection>
 
                     <SettingsSubsection heading={_t("common|spaces")} formWrap>

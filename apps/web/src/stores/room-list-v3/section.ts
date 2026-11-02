@@ -47,6 +47,7 @@ export function isCustomSectionTag(tag: string): tag is CustomTag {
 export function isDefaultSectionTag(tagId: TagID): boolean {
     return (
         tagId === DefaultTagID.Invite ||
+        tagId === DefaultTagID.Unread ||
         tagId === DefaultTagID.Favourite ||
         tagId === DefaultTagID.LowPriority ||
         tagId === CHATS_TAG ||
@@ -227,8 +228,12 @@ export function getOrderedReorderableSections(): ReorderableSection[] {
  */
 export function getOrderedSectionTags(): string[] {
     const showPeopleSection = SettingsStore.getValue("RoomList.showPeopleSection");
+    const showUnreadSection = SettingsStore.getValue("RoomList.showUnreadSection");
     const reorderable = getOrderedReorderableSections().filter((tag) => showPeopleSection || tag !== DefaultTagID.DM);
-    return [DefaultTagID.Invite, DefaultTagID.Favourite, ...reorderable, DefaultTagID.LowPriority];
+    const fixedSections = showUnreadSection
+        ? [DefaultTagID.Favourite, DefaultTagID.Invite, DefaultTagID.Unread]
+        : [DefaultTagID.Favourite, DefaultTagID.Invite];
+    return [...fixedSections, ...reorderable, DefaultTagID.LowPriority];
 }
 
 /**

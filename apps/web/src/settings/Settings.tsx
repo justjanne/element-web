@@ -380,6 +380,7 @@ export interface Settings {
     "RoomList.activeFilter": IBaseSetting<FilterId | null>;
     "RoomList.showSections": IBaseSetting<boolean>;
     "RoomList.showPeopleSection": IBaseSetting<boolean>;
+    "RoomList.showUnreadSection": IBaseSetting<boolean>;
     "composerUrlPreviewCollapsed": IBaseSetting<boolean>;
 }
 
@@ -1294,6 +1295,12 @@ export const SETTINGS: Settings = {
             new AnalyticsController("WebRoomListPeopleSectionToggle"),
             new RequiresSettingsController(["RoomList.showSections"]),
         ],
+    },
+    "RoomList.showUnreadSection": {
+        supportedLevels: LEVELS_ACCOUNT_SETTINGS,
+        default: true,
+        displayName: _td("settings|show_unread_sections"),
+        controller: [new RequiresSettingsController(["RoomList.showSections"])],
     },
     "composerUrlPreviewCollapsed": {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
