@@ -1851,6 +1851,7 @@
     },
     "quick_settings": {
         "all_settings": "All settings",
+        "metaspace_section": "Pin to sidebar",
         "sidebar_settings": "More options",
         "title": "Quick settings"
     },
@@ -3004,6 +3005,7 @@
             "metaspaces_home_description": "Home is useful for getting an overview of everything.",
             "metaspaces_orphans": "Rooms outside of a space",
             "metaspaces_orphans_description": "Group all your rooms that aren't part of a space in one place.",
+            "metaspaces_people_description": "Group all your people in one place.",
             "metaspaces_subsection": "Spaces to show",
             "metaspaces_video_rooms": "Video rooms and conferences",
             "metaspaces_video_rooms_description": "Group all private video rooms and conferences.",

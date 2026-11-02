@@ -137,6 +137,7 @@ describe("SpaceStore", () => {
 
         await SettingsStore.setValue("Spaces.enabledMetaSpaces", null, SettingLevel.DEVICE, {
             [MetaSpace.Home]: true,
+            [MetaSpace.People]: true,
             [MetaSpace.Orphans]: true,
         });
 
@@ -444,6 +445,12 @@ describe("SpaceStore", () => {
                 it("all rooms space does contain rooms/low priority even if they are also shown in a space", async () => {
                     await setShowAllRooms(true);
                     expect(store.isRoomInSpace(MetaSpace.Home, room1)).toBeTruthy();
+                });
+
+                it("people space does contain people even if they are also shown in a space", async () => {
+                    expect(store.isRoomInSpace(MetaSpace.People, dm1)).toBeTruthy();
+                    expect(store.isRoomInSpace(MetaSpace.People, dm2)).toBeTruthy();
+                    expect(store.isRoomInSpace(MetaSpace.People, dm3)).toBeTruthy();
                 });
 
                 it("orphans space does contain orphans even if they are also shown in all rooms", async () => {
@@ -1252,6 +1259,7 @@ describe("SpaceStore", () => {
         client.emit(ClientEvent.Room, rootSpaceRoom1);
         vi.runOnlyPendingTimers();
         expect(sdkContext.spaceStore.invitedSpaces).toStrictEqual([]);
+        expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.People, room1)).toBeFalsy();
         expect(sdkContext.spaceStore.spacePanelSpaces).toStrictEqual([rootSpace]);
         expect(sdkContext.spaceStore.isRoomInSpace(space1, room1)).toBeTruthy();
         expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.Home, room1)).toBeFalsy();
@@ -1264,6 +1272,7 @@ describe("SpaceStore", () => {
         client.emit(ClientEvent.Room, rootSpaceRoom2);
         vi.runOnlyPendingTimers();
         expect(sdkContext.spaceStore.invitedSpaces).toStrictEqual([]);
+        expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.People, room2)).toBeFalsy();
         expect(sdkContext.spaceStore.spacePanelSpaces).toStrictEqual([rootSpace]);
         expect(sdkContext.spaceStore.isRoomInSpace(space1, room2)).toBeTruthy();
         expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.Home, room2)).toBeTruthy();
@@ -1303,6 +1312,7 @@ describe("SpaceStore", () => {
         client.emit(ClientEvent.Room, dm1Room);
         vi.runOnlyPendingTimers();
         expect(sdkContext.spaceStore.invitedSpaces).toStrictEqual([]);
+        expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.People, dm1)).toBeTruthy();
         expect(sdkContext.spaceStore.spacePanelSpaces).toStrictEqual([rootSpace]);
         expect(sdkContext.spaceStore.isRoomInSpace(space1, dm1)).toBeTruthy();
         expect(sdkContext.spaceStore.isRoomInSpace(MetaSpace.Home, dm1)).toBeTruthy();
@@ -1341,10 +1351,14 @@ describe("SpaceStore", () => {
         removeListener();
     });
 
-    it("Favourites and People meta spaces should not be returned", async () => {
+    it("People meta spaces should be returned", async () => {
         await run();
-        // Favourites and People meta spaces are not part of the meta space order
-        expect(sdkContext.spaceStore.enabledMetaSpaces).toStrictEqual([MetaSpace.Home, MetaSpace.Orphans]);
+        // People meta space should be returned
+        expect(sdkContext.spaceStore.enabledMetaSpaces).toStrictEqual([
+            MetaSpace.Home,
+            MetaSpace.People,
+            MetaSpace.Orphans,
+        ]);
     });
 
     describe("when feature_dynamic_room_predecessors is not enabled", () => {

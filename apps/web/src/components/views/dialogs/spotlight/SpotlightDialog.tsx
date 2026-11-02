@@ -153,6 +153,8 @@ function metaspaceToIcon(key: MetaSpace): JSX.Element | undefined {
     switch (key) {
         case MetaSpace.Home:
             return <HomeIcon />;
+        case MetaSpace.People:
+            return <UserProfileIcon />;
         case MetaSpace.Orphans:
             return <RoomIcon />;
     }

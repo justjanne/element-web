@@ -7,7 +7,11 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React, { type ChangeEvent, useMemo } from "react";
-import { VideoCallSolidIcon, HomeSolidIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import {
+    VideoCallSolidIcon,
+    HomeSolidIcon,
+    UserProfileSolidIcon,
+} from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { _t } from "../../../../../languageHandler";
 import SettingsStore from "../../../../../settings/SettingsStore";
@@ -34,13 +38,14 @@ export const onMetaSpaceChangeFactory =
         PosthogTrackers.trackInteraction(
             interactionName,
             e,
-            [MetaSpace.Home, null, MetaSpace.Orphans, MetaSpace.VideoRooms].indexOf(metaSpace),
+            [MetaSpace.Home, null, MetaSpace.People, MetaSpace.Orphans, MetaSpace.VideoRooms].indexOf(metaSpace),
         );
     };
 
 const SidebarUserSettingsTab: React.FC = () => {
     const {
         [MetaSpace.Home]: homeEnabled,
+        [MetaSpace.People]: peopleEnabled,
         [MetaSpace.Orphans]: orphansEnabled,
         [MetaSpace.VideoRooms]: videoRoomsEnabled,
     } = useSettingValue("Spaces.enabledMetaSpaces");
@@ -84,6 +89,16 @@ const SidebarUserSettingsTab: React.FC = () => {
                         description={_t("settings|sidebar|metaspaces_home_all_rooms_description")}
                     >
                         {_t("settings|sidebar|metaspaces_home_all_rooms")}
+                    </StyledCheckbox>
+
+                    <StyledCheckbox
+                        checked={!!peopleEnabled}
+                        onChange={onMetaSpaceChangeFactory(MetaSpace.People, "WebSettingsSidebarTabSpacesCheckbox")}
+                        className="mx_SidebarUserSettingsTab_checkbox"
+                        description={_t("settings|sidebar|metaspaces_people_description")}
+                    >
+                        <UserProfileSolidIcon className="mx_SidebarUserSettingsTab_icon" />
+                        {_t("common|people")}
                     </StyledCheckbox>
 
                     <StyledCheckbox
