@@ -131,6 +131,8 @@ function getSectionTitle(tag: string): string {
     switch (tag) {
         case DefaultTagID.Invite:
             return _t("room_list|section|invites");
+        case DefaultTagID.Unread:
+            return _t("room_list|section|unread");
         case DefaultTagID.Favourite:
             return _t("room_list|section|favourites");
         case DefaultTagID.LowPriority:
