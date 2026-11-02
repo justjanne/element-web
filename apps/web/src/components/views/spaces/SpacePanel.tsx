@@ -28,6 +28,7 @@ import {
     HomeSolidIcon,
     RoomIcon,
     VideoCallSolidIcon,
+    UserProfileSolidIcon,
     PlusIcon,
     ChevronRightIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
@@ -180,6 +181,21 @@ const HomeButton: React.FC<MetaSpaceButtonProps> = ({ selected, isPanelCollapsed
     );
 };
 
+const PeopleButton: React.FC<MetaSpaceButtonProps> = ({ selected, isPanelCollapsed }) => {
+    const sdkContext = useContext(SDKContext);
+    return (
+        <MetaSpaceButton
+            spaceKey={MetaSpace.People}
+            selected={selected}
+            isPanelCollapsed={isPanelCollapsed}
+            label={getMetaSpaceName(MetaSpace.People)}
+            notificationState={sdkContext.spaceStore.getNotificationState(MetaSpace.People)}
+            size="32px"
+            icon={<UserProfileSolidIcon />}
+        />
+    );
+};
+
 const OrphansButton: React.FC<MetaSpaceButtonProps> = ({ selected, isPanelCollapsed }) => {
     const sdkContext = useContext(SDKContext);
     return (
@@ -262,6 +278,7 @@ const CreateSpaceButton: React.FC<Pick<IInnerSpacePanelProps, "isPanelCollapsed"
 
 const metaSpaceComponentMap: Record<MetaSpace, typeof HomeButton> = {
     [MetaSpace.Home]: HomeButton,
+    [MetaSpace.People]: PeopleButton,
     [MetaSpace.Orphans]: OrphansButton,
     [MetaSpace.VideoRooms]: VideoRoomsButton,
 };

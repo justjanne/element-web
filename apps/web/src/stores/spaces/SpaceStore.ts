@@ -65,7 +65,7 @@ import { ModuleApi } from "../../modules/Api.ts";
 
 const ACTIVE_SPACE_LS_KEY = "mx_active_space";
 
-const metaSpaceOrder: MetaSpace[] = [MetaSpace.Home, MetaSpace.Orphans, MetaSpace.VideoRooms];
+const metaSpaceOrder: MetaSpace[] = [MetaSpace.Home, MetaSpace.People, MetaSpace.Orphans, MetaSpace.VideoRooms];
 
 const MAX_SUGGESTED_ROOMS = 20;
 
@@ -441,7 +441,7 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
         }
         // beyond this point we know this is a DM
 
-        if (space === MetaSpace.Home) {
+        if (space === MetaSpace.Home || space === MetaSpace.People) {
             // these spaces contain all DMs
             return true;
         }
@@ -657,13 +657,18 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
         const visibleRooms = this.matrixClient.getVisibleRooms();
 
         let dmBadgeSpace: MetaSpace | undefined;
-        // only show badges on home
-        if (enabledMetaSpaces.has(MetaSpace.Home)) {
+        // only show badges on dms on the most relevant space if such exists
+        if (enabledMetaSpaces.has(MetaSpace.People)) {
+            dmBadgeSpace = MetaSpace.People;
+        } else if (enabledMetaSpaces.has(MetaSpace.Home)) {
             dmBadgeSpace = MetaSpace.Home;
         }
 
         if (!spaces) {
             spaces = [...this.roomIdsBySpace.keys()];
+            if (dmBadgeSpace === MetaSpace.People) {
+                spaces.push(MetaSpace.People);
+            }
             if (enabledMetaSpaces.has(MetaSpace.Home) && !this.allRoomsInHome) {
                 spaces.push(MetaSpace.Home);
             }
@@ -677,6 +682,10 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
             // Update NotificationStates
             this.getNotificationState(s).setRooms(
                 visibleRooms.filter((room) => {
+                    if (s === MetaSpace.People) {
+                        return this.isRoomInSpace(MetaSpace.People, room.roomId);
+                    }
+
                     if (room.isSpaceRoom() || !flattenedRoomsForSpace.has(room.roomId)) return false;
 
                     if (dmBadgeSpace && DMRoomMap.shared().getUserIdForRoomId(room.roomId)) {
@@ -687,6 +696,10 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
                 }),
             );
         });
+
+        if (dmBadgeSpace !== MetaSpace.People) {
+            this.notificationStateMap.delete(MetaSpace.People);
+        }
     };
 
     private showInHomeSpace = (room: Room): boolean => {
@@ -847,7 +860,13 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
             this.switchSpaceIfNeeded();
         }
 
-        this.updateNotificationStates([...changeSet]);
+        const notificationStatesToUpdate = [...changeSet];
+        // We update the People metaspace even if we didn't detect any changes
+        // as roomIdsBySpace does not pre-calculate it so we have to assume it could have changed
+        if (this.enabledMetaSpaces.includes(MetaSpace.People)) {
+            notificationStatesToUpdate.push(MetaSpace.People);
+        }
+        this.updateNotificationStates(notificationStatesToUpdate);
     };
 
     private switchSpaceIfNeeded = (roomId = this.sdkContext.roomViewStore.getRoomId()): void => {
@@ -1043,6 +1062,10 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
             this.emit(MetaSpace.Home);
         }
 
+        if (enabledMetaSpaces.has(MetaSpace.People)) {
+            this.emit(MetaSpace.People);
+        }
+
         if (enabledMetaSpaces.has(MetaSpace.Orphans) || enabledMetaSpaces.has(MetaSpace.Home)) {
             if (isDm && this.roomIdsBySpace.get(MetaSpace.Orphans)?.delete(room.roomId)) {
                 this.emit(MetaSpace.Orphans);
@@ -1138,6 +1161,7 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
         const enabled = new Set(this.enabledMetaSpaces);
         PosthogAnalytics.instance.setProperty("WebMetaSpaceHomeEnabled", enabled.has(MetaSpace.Home));
         PosthogAnalytics.instance.setProperty("WebMetaSpaceHomeAllRooms", this.allRoomsInHome);
+        PosthogAnalytics.instance.setProperty("WebMetaSpacePeopleEnabled", enabled.has(MetaSpace.People));
         PosthogAnalytics.instance.setProperty("WebMetaSpaceOrphansEnabled", enabled.has(MetaSpace.Orphans));
     }
 
@@ -1224,9 +1248,13 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
                         const newValue = SettingsStore.getValue("Spaces.enabledMetaSpaces");
                         const enabledMetaSpaces = metaSpaceOrder.filter((k) => newValue[k]);
                         if (arrayHasDiff(this._enabledMetaSpaces, enabledMetaSpaces)) {
-                            const hadHomeEnabled = this.enabledMetaSpaces.some((s) => s === MetaSpace.Home);
+                            const hadPeopleOrHomeEnabled = this.enabledMetaSpaces.some((s) => {
+                                return s === MetaSpace.Home || s === MetaSpace.People;
+                            });
                             this._enabledMetaSpaces = enabledMetaSpaces;
-                            const hasHomeEnabled = this.enabledMetaSpaces.some((s) => s === MetaSpace.Home);
+                            const hasPeopleOrHomeEnabled = this.enabledMetaSpaces.some((s) => {
+                                return s === MetaSpace.Home || s === MetaSpace.People;
+                            });
 
                             // if a metaspace currently being viewed was removed, go to another one
                             if (isMetaSpace(this.activeSpace) && !newValue[this.activeSpace]) {
@@ -1234,7 +1262,7 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
                             }
                             this.rebuildMetaSpaces();
 
-                            if (hadHomeEnabled !== hasHomeEnabled) {
+                            if (hadPeopleOrHomeEnabled !== hasPeopleOrHomeEnabled) {
                                 // in this case we have to rebuild everything as DM badges will move to/from real spaces
                                 this.updateNotificationStates();
                             } else {
@@ -1251,7 +1279,7 @@ export default class SpaceStore extends AsyncStoreWithClient<EmptyObject> {
                         if (payload.roomId) {
                             // getSpaceFilteredUserIds will return the appropriate value
                             this.emit(payload.roomId);
-                            if (!this.enabledMetaSpaces.some((s) => s === MetaSpace.Home)) {
+                            if (!this.enabledMetaSpaces.some((s) => s === MetaSpace.Home || s === MetaSpace.People)) {
                                 this.updateNotificationStates([payload.roomId]);
                             }
                         }
