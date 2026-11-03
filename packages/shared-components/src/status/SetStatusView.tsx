@@ -6,8 +6,8 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React, { type JSX, useState, useCallback } from "react";
-import { Dropdown, type DropdownTriggerProps, Link, Text } from "@vector-im/compound-web";
-import { ReactionIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { Dropdown, type DropdownTriggerProps, IconButton, Link, Menu, MenuItem, Text } from "@vector-im/compound-web";
+import { HomeIcon, ReactionIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { _t, _td, type UserStatus } from "..";
 import { useViewModel, type ViewModel } from "../core/viewmodel";
@@ -96,6 +96,7 @@ function StatusOption({ value }: { value: StatusValue }): React.ReactNode {
 
 export function SetStatusView({ vm, initialCustomMode = false }: SetStatusViewProps): JSX.Element {
     const { userStatus, recentEmojis, disabled } = useViewModel(vm);
+    const [open, setOpen] = useState<boolean>(false);
     const [customMode, setCustomMode] = useState(initialCustomMode);
 
     const renderItem = useCallback((value: StatusValue | null): React.ReactNode => {
@@ -122,25 +123,18 @@ export function SetStatusView({ vm, initialCustomMode = false }: SetStatusViewPr
         );
     }
 
-    const renderTrigger = (props: DropdownTriggerProps): JSX.Element => {
-        const trigger = (
-            <div className={styles.setStatusContainer}>
-                <Link
-                    className={classNames(styles.setStatusTrigger, { [styles.disabledTrigger]: disabled })}
-                    aria-label={_t("status|set_status|set_status_prompt")}
-                    aria-disabled={disabled}
-                    {...props}
-                >
-                    <ReactionIcon />
-                    <Text as="span" type="body" size="md" weight="medium">
-                        {_t("status|set_status|set_status_prompt")}
-                    </Text>
-                </Link>
-            </div>
-        );
-
-        return trigger;
-    };
+    const trigger = (
+        <Link
+            className={classNames(styles.setStatusTrigger, { [styles.disabledTrigger]: disabled })}
+            aria-label={_t("status|set_status|set_status_prompt")}
+            aria-disabled={disabled}
+        >
+            <ReactionIcon />
+            <Text as="span" type="body" size="md" weight="medium">
+                {_t("status|set_status|set_status_prompt")}
+            </Text>
+        </Link>
+    );
 
     const onValueChange = (value: StatusValue): void => {
         if (value === "custom") {
@@ -165,13 +159,33 @@ export function SetStatusView({ vm, initialCustomMode = false }: SetStatusViewPr
     };
 
     return (
-        <Dropdown<StatusValue>
-            values={STATUS_KEYS}
-            label={null}
-            trigger={renderTrigger}
-            onValueChange={onValueChange}
-            renderItem={renderItem}
-            disabled={disabled}
-        />
+        <div className={styles.setStatusContainer}>
+            <Menu
+                open={open && !disabled}
+                showTitle={false}
+                title={null}
+                trigger={trigger}
+                onOpenChange={setOpen}
+                className={styles.container}
+            >
+                {STATUS_KEYS.map((key) => {
+                    const isSelected =
+                        userStatus?.emoji === STATUSES[key].emoji && userStatus?.text === _t(STATUSES[key].textKey);
+                    return (
+                        <MenuItem
+                            Icon={() => <span className={styles.dropdownEmoji}>{STATUSES[key].emoji}</span>}
+                            label={_t(STATUSES[key].textKey)}
+                            aria-selected={isSelected}
+                            onSelect={() => {
+                                setOpen(false);
+                                onValueChange(key);
+                            }}
+                            key={key}
+                            hideChevron={true}
+                        />
+                    );
+                })}
+            </Menu>
+        </div>
     );
 }
